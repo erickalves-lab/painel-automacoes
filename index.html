@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Automações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0B1F3A;--paper:#F5F7FA;--card:#fff;--line:#D9E0E9;--muted:#56657A;--gold:#C9A227;--ok:#0F7A55;--ok-bg:#E8F5EE;--ok-line:#9FD3BC;--bad:#B42318;--bad-bg:#FDECEA;--bad-line:#F0B4AD}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);background:var(--paper);padding:clamp(16px,4vw,40px);min-height:100vh;line-height:1.4}
+.wrap{max-width:980px;margin:0 auto}
+.kicker{margin:0;font-size:14px;font-weight:600;color:var(--muted)}
+.frase{margin:6px 0 4px;font-size:clamp(24px,4.4vw,36px);font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.frase.bad{color:var(--bad)}
+.dados{margin:0 0 clamp(20px,4vw,32px);font-size:13px;color:var(--muted)}
+.dados.velho{color:var(--bad);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-bottom:4px solid var(--line);border-radius:14px;padding:18px 18px 16px;cursor:pointer;min-height:176px;transition:border-color .15s}
+.tile:hover{border-color:#9AA9BC;border-bottom-color:#9AA9BC}
+.tile:focus-visible,.x:focus-visible,.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.tile[aria-expanded='true']{border-bottom-color:var(--gold);border-color:var(--ink)}
+.n{font-size:clamp(56px,11vw,88px);font-weight:800;letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+.l{margin-top:8px;font-size:16px;font-weight:700}
+.h{font-size:13px;color:var(--muted)}
+.tile.alerta{border-color:var(--bad-line);border-bottom-color:var(--bad)}
+.tile.alerta .n,.tile.alerta .l{color:var(--bad)}
+.tile.zero .n{color:#8794A7}
+.bang{display:none;position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:var(--bad);color:#fff;font-weight:800;font-size:17px;line-height:28px;text-align:center}
+.tile.alerta .bang{display:block}
+.scrim{position:fixed;inset:0;background:rgba(11,31,58,.38);opacity:0;visibility:hidden;transition:opacity .2s,visibility .2s;z-index:40}
+.scrim.open{opacity:1;visibility:visible}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--paper);box-shadow:-12px 0 40px rgba(11,31,58,.18);transform:translateX(100%);visibility:hidden;transition:transform .22s ease,visibility .22s;display:flex;flex-direction:column;z-index:50}
+.drawer.open{transform:none;visibility:visible}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+.dh h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em}
+.x{font:inherit;font-size:14px;font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:10px;padding:8px 14px;cursor:pointer}
+.x:hover{border-color:var(--ink)}
+.db{flex:1;overflow-y:auto;padding:16px 20px 28px}
+.grupo{margin:18px 0 8px;font-size:13px;font-weight:700;color:var(--muted)}
+.box{display:grid;grid-template-columns:56px 1fr;gap:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.box.neg{background:var(--bad-bg);border-color:var(--bad-line);border-left:5px solid var(--bad)}
+.box.fora{background:transparent;border-style:dashed}
+.hora{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.hora small{display:block;font-size:12px;font-weight:500;color:var(--muted)}
+.nome{font-size:15px;font-weight:600}
+.linha{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.txt{margin:6px 0 0;font-size:14px}
+.fn{margin:3px 0 0;font-size:14px}
+.chip{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:99px;font-size:12px;font-weight:700;vertical-align:1px}
+.chip.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line)}
+.chip.bad{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-line)}
+.btn{margin-top:10px;font:inherit;font-size:14px;font-weight:700;color:#fff;background:var(--ink);border:0;border-radius:10px;padding:10px 16px;cursor:pointer}
+.btn.sec{color:var(--ink);background:transparent;border:1px solid var(--line);font-weight:600;padding:7px 12px}
+.vazio{margin:8px 0;padding:18px;border:1px dashed var(--line);border-radius:10px;font-size:14px;color:var(--muted)}
+@media (max-width:480px){.tile{min-height:150px;padding:14px}.box{grid-template-columns:48px 1fr}}
+@media (prefers-reduced-motion:reduce){.drawer,.scrim,.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<p class="kicker">Automações</p>
+<h1 class="frase" id="frase">—</h1>
+<p class="dados" id="dados">Carregando…</p>
+</header>
+<section class="tiles" aria-label="Números de hoje">
+<button type="button" class="tile" data-gaveta="ativas" aria-expanded="false" aria-controls="gaveta"><span class="n" id="n_ativas">—</span><span class="l">Ativas</span><span class="h" id="h_ativas">—</span></button>
+<button type="button" class="tile" data-gaveta="hoje" aria-expanded="false" aria-controls="gaveta"><span class="n" id="n_hoje">—</span><span class="l">Rodaram hoje</span><span class="h" id="h_hoje">—</span></button>
+<button type="button" class="tile" data-gaveta="falhas" aria-expanded="false" aria-controls="gaveta"><span class="bang" aria-hidden="true">!</span><span class="n" id="n_falha">—</span><span class="l">Com falha</span><span class="h" id="h_falha">—</span></button>
+<button type="button" class="tile" data-gaveta="ainda" aria-expanded="false" aria-controls="gaveta"><span class="n" id="n_ainda">—</span><span class="l">Ainda hoje</span><span class="h" id="h_ainda">—</span></button>
+</section>
+</div>
+<div class="scrim" id="cortina"></div>
+<aside class="drawer" id="gaveta" role="dialog" aria-modal="true" aria-labelledby="g_titulo" aria-hidden="true">
+<div class="dh"><h2 id="g_titulo">—</h2><button type="button" class="x" id="fechar">Fechar</button></div>
+<div class="db" id="g_corpo"></div>
+</aside>
+<script>
+(function(){
+'use strict';
+var TZ='America/Sao_Paulo';
+var fD=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});
+var fH=new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,hour:'2-digit',minute:'2-digit',hour12:false});
+var fM=new Intl.DateTimeFormat('pt-BR',{timeZone:TZ,day:'2-digit',month:'2-digit'});
+function dia(i){return fD.format(new Date(i));}
+function hora(i){return fH.format(new Date(i));}
+function dm(i){return fM.format(new Date(i));}
+function rotulo(i,now){var d=dia(i);if(d===dia(now))return 'hoje';if(d===dia(new Date(now.getTime()-864e5)))return 'ontem';if(d===dia(new Date(now.getTime()+864e5)))return 'amanhã';return dm(i);}
+function dur(s){s=Number(s)||0;if(s<60)return s+' s';var m=Math.floor(s/60),r=s%60;return r?m+' min '+r+' s':m+' min';}
+function rel(i,now){var m=Math.max(0,Math.round((new Date(i)-now)/60000));if(m<1)return 'agora';if(m<60)return 'em '+m+' min';var h=Math.floor(m/60),r=m%60;return r?'em '+h+' h '+r+' min':'em '+h+' h';}
+function motivo(c){return c==='USAGE_LIMIT_REACHED'?'Limite de uso atingido':(c?String(c).toLowerCase().replace(/_/g,' '):'Motivo não informado');}
+function $(id){return document.getElementById(id);}
+function E(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function keyOf(r){return r.id+'_'+r.ultima;}
+var LSK='painel-automacoes-verificadas';
+var memo=new Set();
+try{JSON.parse(localStorage.getItem(LSK)||'[]').forEach(function(k){memo.add(k);});}catch(e){}
+function salvaMemo(){try{localStorage.setItem(LSK,JSON.stringify(Array.from(memo)));}catch(e){}}
+var ROWS=null,SEL=null,opener=null,FALHOU_CARGA=false;
+function derive(){
+if(!ROWS)return null;
+var now=new Date(),hoje=dia(now);
+var ativas=ROWS.filter(function(r){return String(r.ativa)==='true';});
+var fora=ROWS.filter(function(r){return String(r.ativa)!=='true';});
+var rodou=ROWS.filter(function(r){return r.ultima&&dia(r.ultima)===hoje;}).sort(function(a,b){return a.ultima<b.ultima?1:-1;});
+var falhas=ROWS.filter(function(r){return r.status==='falhou';}).sort(function(a,b){return a.ultima<b.ultima?1:-1;});
+var pend=falhas.filter(function(r){return !memo.has(keyOf(r));});
+var feitas=falhas.filter(function(r){return memo.has(keyOf(r));});
+var ainda=[];
+ativas.forEach(function(r){String(r.slots_hoje||'').split(',').filter(Boolean).forEach(function(s){if(new Date(s)>now)ainda.push({r:r,quando:s});});});
+ainda.sort(function(a,b){return a.quando<b.quando?-1:1;});
+return {now:now,ativas:ativas,fora:fora,rodou:rodou,falhas:falhas,pend:pend,feitas:feitas,ainda:ainda,pos:ROWS[0]?ROWS[0].posicao:''};
+}
+function proxima(r,now){var c=String(r.slots_hoje||'').split(',').filter(Boolean);if(r.proxima)c.push(r.proxima);c=c.filter(function(s){return new Date(s)>now;}).sort();return c[0]||'';}
+function pintaTiles(){
+var d=derive();
+function set(id,t){$(id).textContent=t;}
+function tog(id,cls,on){$(id).closest('.tile').classList.toggle(cls,on);}
+if(!d){['n_ativas','n_hoje','n_falha','n_ainda','h_ativas','h_hoje','h_falha','h_ainda'].forEach(function(i){set(i,'—');});$('frase').textContent=FALHOU_CARGA?'Não consegui carregar os dados.':'—';$('dados').textContent=FALHOU_CARGA?'Tente recarregar a página em instantes.':'Carregando…';return;}
+set('n_ativas',String(d.ativas.length));set('h_ativas',d.fora.length?(d.fora.length+' fora do ar'):'todas no ar');
+set('n_hoje',String(d.rodou.length));tog('n_hoje','zero',d.rodou.length===0);
+var ok=d.rodou.filter(function(r){return r.status==='ok';}).length,f=d.rodou.length-ok;
+set('h_hoje',d.rodou.length?(ok+' ok'+(f?' · '+f+' falhou':'')):'nada rodou ainda');
+set('n_falha',String(d.pend.length));tog('n_falha','alerta',d.pend.length>0);tog('n_falha','zero',d.pend.length===0);
+set('h_falha',d.pend.length?(d.pend.length===1?'precisa da sua conferência':'precisam da sua conferência'):(d.falhas.length?'tudo conferido':'nenhuma falha'));
+set('n_ainda',String(d.ainda.length));tog('n_ainda','zero',d.ainda.length===0);
+set('h_ainda',d.ainda.length?('próxima às '+hora(d.ainda[0].quando)):'nada mais hoje');
+var n=d.pend.length,fr=$('frase');fr.classList.toggle('bad',n>0);
+fr.textContent=n>0?(n+(n===1?' automação precisa de atenção.':' automações precisam de atenção.')):'Tudo em ordem.';
+var dd=$('dados');
+if(d.pos){var idade=(d.now-new Date(d.pos))/3600000;dd.classList.toggle('velho',idade>3);dd.textContent='Atualizado '+rotulo(d.pos,d.now)+', '+hora(d.pos)+(idade>3?'. Dados desatualizados.':'.');}else{dd.textContent='';}
+}
+function grupo(t){return E('p','grupo',t);}
+function vazio(t){return E('p','vazio',t);}
+function boxBase(cls,h,sub){var b=E('div','box'+(cls?' '+cls:''));var hh=E('div','hora',h);if(sub){hh.appendChild(E('small',null,sub));}b.appendChild(hh);var c=E('div');b.appendChild(c);return {b:b,c:c};}
+function fn(r){return r.funcao?E('p','fn',r.funcao):null;}
+function rAtivas(d,el){
+if(!d.ativas.length)el.appendChild(vazio('Nenhuma automação ativa.'));
+d.ativas.slice().sort(function(a,b){var x=proxima(a,d.now)||'9',y=proxima(b,d.now)||'9';return x<y?-1:1;}).forEach(function(r){var p=proxima(r,d.now);var x=boxBase('',p?hora(p):'—',p?rotulo(p,d.now):'');x.c.appendChild(E('span','nome',r.nome));var f=fn(r);if(f)x.c.appendChild(f);x.c.appendChild(E('p','linha',r.quando));el.appendChild(x.b);});
+if(d.fora.length){el.appendChild(grupo('Fora do ar ('+d.fora.length+')'));d.fora.forEach(function(r){var x=boxBase('fora','—','');x.c.appendChild(E('span','nome',r.nome));var f=fn(r);if(f)x.c.appendChild(f);x.c.appendChild(E('p','linha',r.fora||'Fora do ar'));el.appendChild(x.b);});}
+}
+function rHoje(d,el){
+if(!d.rodou.length){el.appendChild(vazio(d.ainda.length?('Nada rodou ainda hoje. A primeira é às '+hora(d.ainda[0].quando)+'.'):'Nada rodou hoje.'));return;}
+d.rodou.forEach(function(r){var ok=r.status==='ok';var x=boxBase(ok?'':'neg',hora(r.ultima),'');var l=E('div');l.appendChild(E('span','nome',r.nome));l.appendChild(E('span','chip '+(ok?'ok':'bad'),ok?'ok':'falhou'));x.c.appendChild(l);x.c.appendChild(E('p','linha','Levou '+dur(r.duracao)));if(!ok)x.c.appendChild(E('p','txt',motivo(r.motivo)+'.'));el.appendChild(x.b);});
+}
+function rAinda(d,el){
+if(!d.ainda.length){el.appendChild(vazio('Nada mais está agendado para hoje. A próxima é amanhã ou depois, veja em Ativas.'));return;}
+d.ainda.forEach(function(i){var x=boxBase('',hora(i.quando),'');x.c.appendChild(E('span','nome',i.r.nome));var f=fn(i.r);if(f)x.c.appendChild(f);x.c.appendChild(E('p','linha',rel(i.quando,d.now)+' · '+i.r.quando));el.appendChild(x.b);});
+}
+function marcar(r,v){var k=keyOf(r);if(v){memo.add(k);}else{memo.delete(k);}salvaMemo();pintaTiles();pintaGaveta();var f=$('fechar');if(f)f.focus();}
+function rFalhas(d,el){
+if(!d.pend.length){el.appendChild(vazio(d.falhas.length?'Todas as falhas foram conferidas.':'Nenhuma falha na última execução de cada automação.'));}
+d.pend.forEach(function(r){var x=boxBase('neg',hora(r.ultima),rotulo(r.ultima,d.now));x.c.appendChild(E('span','nome',r.nome));x.c.appendChild(E('p','txt',motivo(r.motivo)+'.'));var b=E('button','btn','Verifiquei');b.type='button';b.addEventListener('click',function(){b.disabled=true;marcar(r,true);});x.c.appendChild(b);el.appendChild(x.b);});
+if(d.feitas.length){el.appendChild(grupo('Já conferidas ('+d.feitas.length+')'));d.feitas.forEach(function(r){var x=boxBase('fora',hora(r.ultima),rotulo(r.ultima,d.now));x.c.appendChild(E('span','nome',r.nome));x.c.appendChild(E('p','linha',motivo(r.motivo)));var b=E('button','btn sec','Desfazer');b.type='button';b.addEventListener('click',function(){b.disabled=true;marcar(r,false);});x.c.appendChild(b);el.appendChild(x.b);});}
+}
+function pintaGaveta(){
+var d=derive(),el=$('g_corpo'),st=el.scrollTop;
+var tit={ativas:'Ativas',hoje:'Rodaram hoje',falhas:'Precisam de atenção',ainda:'Ainda hoje'};
+if(d){var cnt={ativas:d.ativas.length,hoje:d.rodou.length,falhas:d.pend.length,ainda:d.ainda.length};$('g_titulo').textContent=SEL?(tit[SEL]+' ('+cnt[SEL]+')'):'—';}
+el.replaceChildren();
+if(!d){el.appendChild(vazio('Sem dados no momento.'));return;}
+if(SEL==='ativas')rAtivas(d,el);else if(SEL==='hoje')rHoje(d,el);else if(SEL==='falhas')rFalhas(d,el);else if(SEL==='ainda')rAinda(d,el);
+el.scrollTop=st;
+}
+var G=$('gaveta'),C=$('cortina');
+function abrir(nome,btn){SEL=nome;opener=btn;document.querySelectorAll('[data-gaveta]').forEach(function(b){b.setAttribute('aria-expanded',b.getAttribute('data-gaveta')===nome?'true':'false');});G.classList.add('open');C.classList.add('open');G.setAttribute('aria-hidden','false');$('g_corpo').scrollTop=0;pintaGaveta();$('fechar').focus();}
+function fechar(){if(!G.classList.contains('open'))return;G.classList.remove('open');C.classList.remove('open');G.setAttribute('aria-hidden','true');document.querySelectorAll('[data-gaveta]').forEach(function(b){b.setAttribute('aria-expanded','false');});if(opener)opener.focus();SEL=null;}
+document.querySelectorAll('[data-gaveta]').forEach(function(b){b.addEventListener('click',function(){var n=b.getAttribute('data-gaveta');if(G.classList.contains('open')&&SEL===n){fechar();}else{abrir(n,b);}});});
+$('fechar').addEventListener('click',fechar);
+C.addEventListener('click',fechar);
+document.addEventListener('keydown',function(e){if(e.key==='Escape')fechar();});
+function carrega(){
+fetch('data.json?t='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(String(r.status));return r.json();}).then(function(j){ROWS=Array.isArray(j)?j:null;FALHOU_CARGA=!ROWS;pintaTiles();if(G.classList.contains('open')&&!$('g_corpo').contains(document.activeElement))pintaGaveta();}).catch(function(){FALHOU_CARGA=!ROWS;pintaTiles();});
+}
+carrega();
+setInterval(carrega,5*60000);
+setInterval(function(){pintaTiles();if(G.classList.contains('open')&&!$('g_corpo').contains(document.activeElement))pintaGaveta();},60000);
+})();
+</script>
+</body>
+</html>
